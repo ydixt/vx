@@ -72,12 +72,29 @@ class Text extends Component {
     }, []);
   }
 
+  leftShift(lineWidth, align) {
+    const { width: textWidth, x } = props;
+
+    switch (align) {
+      case 'left':
+        return x;
+      case 'middle':
+        return textWidth / 2 - lineWidth / 2;
+      case 'right':
+        return textWidth - lineWidth;
+      default:
+        console.error(`unsupported align value ${align}`);
+        return '';
+    }
+  }
+
   render() {
     const {
       dx,
       dy,
       textAnchor,
       verticalAnchor,
+      align,
       scaleToFit,
       angle,
       lineHeight,
@@ -130,7 +147,11 @@ class Text extends Component {
       >
         <text {...textProps} textAnchor={textAnchor}>
           {wordsByLines.map((line, index) => (
-            <tspan x={x} dy={index === 0 ? startDy : lineHeight} key={index}>
+            <tspan
+              x={leftShift(line.width, align)}
+              dy={index === 0 ? startDy : lineHeight}
+              key={index}
+            >
               {line.words.join(' ')}
             </tspan>
           ))}
@@ -149,7 +170,8 @@ Text.defaultProps = {
   capHeight: '0.71em', // Magic number from d3
   scaleToFit: false,
   textAnchor: 'start',
-  verticalAnchor: 'end' // default SVG behavior
+  verticalAnchor: 'end', // default SVG behavior
+  align: 'left'
 };
 
 Text.propTypes = {
@@ -158,6 +180,7 @@ Text.propTypes = {
   textAnchor: PropTypes.oneOf(['start', 'middle', 'end', 'inherit']),
   verticalAnchor: PropTypes.oneOf(['start', 'middle', 'end']),
   style: PropTypes.object,
+  align: PropTypes.oneOf(['left', 'middle', 'end', 'right']),
   innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
   x: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   y: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
